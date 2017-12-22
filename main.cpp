@@ -9,7 +9,7 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 
-	TrackingApplication trackingApplication(argv[1]);
+	TrackingApplication trackingApplication(argv[1], 90);
 	trackingApplication.trackLoop();
 
 	return 0;

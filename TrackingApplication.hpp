@@ -17,7 +17,7 @@ typedef std::chrono::nanoseconds nanoseconds;
 class TrackingApplication {
 
 	public:
-		TrackingApplication(std::string const& thisIpAndPort);
+		TrackingApplication(std::string const& thisIpAndPort, int desiredFps);
 
 		void trackLoop();
 		float predictSecondsFromNow() const;
@@ -28,6 +28,7 @@ class TrackingApplication {
 	private:
 		Broadcaster m_broadcaster;
 		vr::IVRSystem* m_vrSystem;
+		int m_desiredFps;
 
 };
 

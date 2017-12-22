@@ -1,6 +1,6 @@
 #include "TrackingApplication.hpp"
 
-TrackingApplication::TrackingApplication(std::string const& thisIpAndPort) : m_broadcaster() {
+TrackingApplication::TrackingApplication(std::string const& thisIpAndPort, int desiredFps) : m_broadcaster(), m_desiredFps(desiredFps) {
 	std::string hostAddress("tcp://" + thisIpAndPort);
 	m_broadcaster.setHostAddress(hostAddress);
 
@@ -18,54 +18,55 @@ void TrackingApplication::trackLoop() {
 
 	const int numberOfTrackedDevices(vr::k_unMaxTrackedDeviceCount);
 	vr::TrackedDevicePose_t trackedDevicesHandles[numberOfTrackedDevices];
+
+	nanoseconds desiredFrameTimeNano((int) std::round((1.0 / m_desiredFps) * 1000000000));
+	Clock::time_point lastTickTime(Clock::now());
+
 	Clock::time_point lastPrintTime(Clock::now());
 	int packetsSinceLastPrint(0);
 
-	int desiredFps(60);
-	nanoseconds desiredFrameTimeNano((int) std::round((1.0 / desiredFps) * 1000000000));
-	Clock::time_point frameStartTime(Clock::now());
-
 	while (true) {
 
-		Message outboundMessageForThisFrame;
-		int controllerCount(0);
-		int trackerCount(0);
-		float predictedSecondsFromNow(predictSecondsFromNow());
-		m_vrSystem->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseStanding, predictedSecondsFromNow, trackedDevicesHandles, numberOfTrackedDevices);
+		if (Clock::now() - lastTickTime > desiredFrameTimeNano) {
+			Message outboundMessageForThisFrame;
+			int controllerCount(0);
+			int trackerCount(0);
+			float predictedSecondsFromNow(predictSecondsFromNow());
+			m_vrSystem->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseStanding, predictedSecondsFromNow, trackedDevicesHandles, numberOfTrackedDevices);
 
-		for (short i = 0; i < numberOfTrackedDevices; ++i) {
+			for (short i = 0; i < numberOfTrackedDevices; ++i) {
 
-			vr::TrackedDeviceClass deviceType(vr::VRSystem()->GetTrackedDeviceClass(i));
+				vr::TrackedDeviceClass deviceType(vr::VRSystem()->GetTrackedDeviceClass(i));
 
-			if (deviceType == vr::TrackedDeviceClass_HMD) {
-				addHmdToMessage(trackedDevicesHandles[i], i, outboundMessageForThisFrame);
+				if (deviceType == vr::TrackedDeviceClass_HMD) {
+					addHmdToMessage(trackedDevicesHandles[i], i, outboundMessageForThisFrame);
+				}
+				else if (deviceType == vr::TrackedDeviceClass_Controller) {
+					addControllerToMessage(trackedDevicesHandles[i], i, controllerCount, outboundMessageForThisFrame);
+					++controllerCount;
+				}
+				else if (deviceType == vr::TrackedDeviceClass_TrackingReference) {
+					addTrackerToMessage(trackedDevicesHandles[i], i, trackerCount, outboundMessageForThisFrame);
+					++trackerCount;
+				}
+
 			}
-			else if (deviceType == vr::TrackedDeviceClass_Controller) {
-				addControllerToMessage(trackedDevicesHandles[i], i, controllerCount, outboundMessageForThisFrame);
-				++controllerCount;
-			}
-			else if (deviceType == vr::TrackedDeviceClass_TrackingReference) {
-				addTrackerToMessage(trackedDevicesHandles[i], i, trackerCount, outboundMessageForThisFrame);
-				++trackerCount;
+
+			m_broadcaster.publish(outboundMessageForThisFrame);
+			++packetsSinceLastPrint;
+
+			// print number of messages every second
+			std::chrono::high_resolution_clock::duration timeSinceLastPrint(Clock::now() - lastPrintTime);
+
+			if (std::chrono::duration_cast<nanoseconds>(timeSinceLastPrint).count() > 1000000000) {
+				std::cout << "Sent " << packetsSinceLastPrint << " packets in a second." << std::endl;
+				packetsSinceLastPrint = 0;
+				lastPrintTime = Clock::now();
 			}
 
+			lastTickTime = Clock::now();
 		}
 
-		m_broadcaster.publish(outboundMessageForThisFrame);
-		++packetsSinceLastPrint;
-
-		// print number of messages every second
-		std::chrono::high_resolution_clock::duration timeSinceLastPrint(Clock::now() - lastPrintTime);
-
-		if (std::chrono::duration_cast<nanoseconds>(timeSinceLastPrint).count() > 1000000000) {
-			std::cout << "Sent " << packetsSinceLastPrint << " packets in a second." << std::endl;
-			packetsSinceLastPrint = 0;
-			lastPrintTime = Clock::now();
-		}
-
-		// sleep to achieve desired fps
-		std::this_thread::sleep_for(desiredFrameTimeNano - (Clock::now() - frameStartTime));
-		frameStartTime = Clock::now();
 	}
 
 }
