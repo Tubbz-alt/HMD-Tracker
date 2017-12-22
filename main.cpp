@@ -10,14 +10,14 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 
-	std::string hostIp(argv[1]);
+	std::string hostIpPort(argv[1]);
 
 	int desiredFps(INT_MAX);
 	if (argc == 3) {
 		desiredFps = std::stoi(argv[2]);
 	}
 
-	TrackingApplication trackingApplication(hostIp, desiredFps);
+	TrackingApplication trackingApplication(hostIpPort, desiredFps);
 	trackingApplication.trackLoop();
 
 	return 0;
