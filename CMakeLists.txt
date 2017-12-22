@@ -8,11 +8,6 @@ set(OPENVR_INCLUDE_DIR "" CACHE FILEPATH "Include directory of openvr")
 set(LIBZMQ_LIBRARY_DIR "" CACHE FILEPATH "Library directory of libzmq")
 set(OPENVR_LIBRARY_DIR "" CACHE FILEPATH "Library directory of openvr")
 
-#include_directories("C:/Data/Repositories/libzmq/include")
-#include_directories("C:/Data/Repositories/openvr/headers")
-#link_directories("C:/Data/Repositories/libzmq/bin/x64/Release/v140/dynamic")
-#link_directories("C:/Data/Repositories/openvr/lib/win64")
-
 include_directories(${LIBZMQ_INCLUDE_DIR})
 include_directories(${OPENVR_INCLUDE_DIR})
 
@@ -30,4 +25,3 @@ add_executable(HMDTracker
 
 target_link_libraries(HMDTracker "${LIBZMQ_LIBRARY_DIR}/libzmq.lib")
 target_link_libraries(HMDTracker "${OPENVR_LIBRARY_DIR}/openvr_api.lib")
-
