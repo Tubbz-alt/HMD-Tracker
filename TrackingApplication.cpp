@@ -4,6 +4,7 @@ TrackingApplication::TrackingApplication(std::string const& thisIpAndPort, int d
 	std::string hostAddress("tcp://" + thisIpAndPort);
 	m_broadcaster.setHostAddress(hostAddress);
 
+	std::cout << "[TrackingApplication.cpp] Initializing VR environment" << std::endl;
 	vr::EVRInitError error(vr::VRInitError_None);
 	m_vrSystem = vr::VR_Init(&error, vr::VRApplication_Background);
 
@@ -59,7 +60,7 @@ void TrackingApplication::trackLoop() {
 			std::chrono::high_resolution_clock::duration timeSinceLastPrint(Clock::now() - lastPrintTime);
 
 			if (std::chrono::duration_cast<nanoseconds>(timeSinceLastPrint).count() > 1000000000) {
-				std::cout << "Sent " << packetsSinceLastPrint << " packets in a second." << std::endl;
+				std::cout << "[TrackingApplication.cpp] Published " << packetsSinceLastPrint << " packets in a second." << std::endl;
 				packetsSinceLastPrint = 0;
 				lastPrintTime = Clock::now();
 			}
