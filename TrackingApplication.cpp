@@ -129,25 +129,25 @@ void TrackingApplication::addControllerToMessage(vr::TrackedDevicePose_t const& 
 
 	controller.trigger = controllerState.rAxis[1].x;
 
-	if (controllerState.ulButtonTouched == vr::ButtonMaskFromId(vr::k_EButton_SteamVR_Touchpad)) {
+	if (controllerState.ulButtonTouched & vr::ButtonMaskFromId(vr::k_EButton_SteamVR_Touchpad)) {
 		controller.padTouchButton = true;
 		controller.padX = controllerState.rAxis[0].x;
 		controller.padY = controllerState.rAxis[0].y;
 	}
 
-	if (controllerState.ulButtonPressed == vr::ButtonMaskFromId(vr::k_EButton_ApplicationMenu)) {
+	if (controllerState.ulButtonPressed & vr::ButtonMaskFromId(vr::k_EButton_ApplicationMenu)) {
 		controller.appMenuButton = true;
 	}
 	
-	if (controllerState.ulButtonPressed == vr::ButtonMaskFromId(vr::k_EButton_Grip)) {
+	if (controllerState.ulButtonPressed & vr::ButtonMaskFromId(vr::k_EButton_Grip)) {
 		controller.gripButton = true;
 	}
 	
-	if (controllerState.ulButtonPressed == vr::ButtonMaskFromId(vr::k_EButton_SteamVR_Trigger)) {
+	if (controllerState.ulButtonPressed & vr::ButtonMaskFromId(vr::k_EButton_SteamVR_Trigger)) {
 		controller.triggerButton = true;
 	}
 	
-	if (controllerState.ulButtonPressed == vr::ButtonMaskFromId(vr::k_EButton_SteamVR_Touchpad)) {
+	if (controllerState.ulButtonPressed & vr::ButtonMaskFromId(vr::k_EButton_SteamVR_Touchpad)) {
 		controller.padButton = true;
 	}
 
