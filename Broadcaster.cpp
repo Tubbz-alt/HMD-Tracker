@@ -4,8 +4,8 @@ Broadcaster::Broadcaster() :
   m_context(1), m_socket(m_context, ZMQ_PUB), m_messageLength(sizeof(Message)) {
 
 	// set maximum number of outstanding messages in the queue
-	int highWaterMark(1); 
-	m_socket.setsockopt(ZMQ_SNDHWM, &highWaterMark, sizeof(highWaterMark));
+	int conflateMessages(1); 
+	m_socket.setsockopt(ZMQ_CONFLATE, &conflateMessages, sizeof(conflateMessages));
 }
 
 void Broadcaster::setHostAddress(std::string const& hostAddress) {
