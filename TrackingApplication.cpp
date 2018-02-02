@@ -123,7 +123,7 @@ void TrackingApplication::addControllerToMessage(vr::TrackedDevicePose_t const& 
 	controller.matrix[14] = mat.m[2][3];
 
 	vr::VRControllerState_t controllerState;
-	if (!m_vrSystem->GetControllerState(deviceId, &controllerState)) {
+	if (!m_vrSystem->GetControllerState(deviceId, &controllerState, sizeof(vr::VRControllerState_t))) {
 		return;
 	}
 
