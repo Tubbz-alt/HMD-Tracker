@@ -1,19 +1,30 @@
 #include "Broadcaster.hpp"
 
-Broadcaster::Broadcaster() :
-  m_context(1), m_socket(m_context, ZMQ_PUB), m_messageLength(sizeof(Message)) {
+zmq::context_t Broadcaster::context(1);
+zmq::socket_t Broadcaster::socket(Broadcaster::context, ZMQ_PUB);
+size_t Broadcaster::messageLength(sizeof(Message));
 
+Broadcaster::Broadcaster() {
 	// set maximum number of outstanding messages in the queue
 	int conflateMessages(1); 
-	m_socket.setsockopt(ZMQ_CONFLATE, &conflateMessages, sizeof(conflateMessages));
+	Broadcaster::socket.setsockopt(ZMQ_CONFLATE, &conflateMessages, sizeof(conflateMessages));
+	
+	std::signal(SIGINT, Broadcaster::signalHandler);
+	std::signal(SIGKILL, Broadcaster::signalHandler);
 }
 
 void Broadcaster::setHostAddress(std::string const& hostAddress) {
-	m_socket.bind(hostAddress.c_str());
+	Broadcaster::socket.bind(hostAddress.c_str());
 }
 
 void Broadcaster::publish(Message const& message) {
-	zmq::message_t zmqMessage(m_messageLength);
-	memcpy(zmqMessage.data(), &message, m_messageLength);
-	m_socket.send(zmqMessage);
+	zmq::message_t zmqMessage(Broadcaster::messageLength);
+	memcpy(zmqMessage.data(), &message, Broadcaster::messageLength);
+	Broadcaster::socket.send(zmqMessage);
+}
+
+void Broadcaster::signalHandler(int signal) {
+	Broadcaster::socket.close();
+	Broadcaster::context.close();
+	exit(0);
 }
