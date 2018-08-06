@@ -23,6 +23,7 @@ class TrackingApplication {
 		float predictSecondsFromNow() const;
 		void addHmdToMessage(vr::TrackedDevicePose_t const& pose, short deviceId, Message& message) const;
 		void addControllerToMessage(vr::TrackedDevicePose_t const& pose, short deviceId, int controllerId, Message& message) const;
+		void addBaseStationToMessage(vr::TrackedDevicePose_t const& pose, short deviceId, int trackerId, Message& message) const;
 		void addTrackerToMessage(vr::TrackedDevicePose_t const& pose, short deviceId, int trackerId, Message& message) const;
 
 	private:

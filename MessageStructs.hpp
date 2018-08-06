@@ -40,6 +40,7 @@ struct Message {
 
 	TrackedDevice hmd;
 	std::array<ControllerDevice, 2> controllers;
+	std::array<TrackedDevice, 2> baseStations;
 	std::array<TrackedDevice, 2> trackers;
 };
 

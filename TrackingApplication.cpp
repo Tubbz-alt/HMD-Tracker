@@ -31,6 +31,7 @@ void TrackingApplication::trackLoop() {
 		if (Clock::now() - lastTickTime > desiredFrameTimeNano) {
 			Message outboundMessageForThisFrame;
 			int controllerCount(0);
+			int baseStationCount(0);
 			int trackerCount(0);
 			float predictedSecondsFromNow(predictSecondsFromNow());
 			m_vrSystem->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseStanding, predictedSecondsFromNow, trackedDevicesHandles, numberOfTrackedDevices);
@@ -47,6 +48,10 @@ void TrackingApplication::trackLoop() {
 					++controllerCount;
 				}
 				else if (deviceType == vr::TrackedDeviceClass_TrackingReference) {
+					addBaseStationToMessage(trackedDevicesHandles[i], i, baseStationCount, outboundMessageForThisFrame);
+					++baseStationCount;
+				}
+				else if (deviceType == vr::TrackedDeviceClass_GenericTracker) {
 					addTrackerToMessage(trackedDevicesHandles[i], i, trackerCount, outboundMessageForThisFrame);
 					++trackerCount;
 				}
@@ -138,7 +143,7 @@ void TrackingApplication::addControllerToMessage(vr::TrackedDevicePose_t const& 
 	if (controllerState.ulButtonPressed & vr::ButtonMaskFromId(vr::k_EButton_ApplicationMenu)) {
 		controller.appMenuButton = true;
 	}
-	
+
 	if (controllerState.ulButtonPressed & vr::ButtonMaskFromId(vr::k_EButton_Grip)) {
 		controller.gripButton = true;
 	}
@@ -154,6 +159,28 @@ void TrackingApplication::addControllerToMessage(vr::TrackedDevicePose_t const& 
 	message.controllers[controllerId] = controller;
 }
 
+
+void TrackingApplication::addBaseStationToMessage(vr::TrackedDevicePose_t const& pose, short deviceId, int baseStationId, Message& message) const {
+	TrackedDevice baseStation;
+	baseStation.status = true;
+	baseStation.id = deviceId;
+	vr::HmdMatrix34_t mat = pose.mDeviceToAbsoluteTracking;
+
+	baseStation.matrix[0] = mat.m[0][0];
+	baseStation.matrix[1] = mat.m[1][0];
+	baseStation.matrix[2] = mat.m[2][0];
+	baseStation.matrix[4] = mat.m[0][1];
+	baseStation.matrix[5] = mat.m[1][1];
+	baseStation.matrix[6] = mat.m[2][1];
+	baseStation.matrix[8] = mat.m[0][2];
+	baseStation.matrix[9] = mat.m[1][2];
+	baseStation.matrix[10] = mat.m[2][2];
+	baseStation.matrix[12] = mat.m[0][3];
+	baseStation.matrix[13] = mat.m[1][3];
+	baseStation.matrix[14] = mat.m[2][3];
+
+	message.baseStations[baseStationId] = baseStation;
+}
 
 void TrackingApplication::addTrackerToMessage(vr::TrackedDevicePose_t const& pose, short deviceId, int trackerId, Message& message) const {
 	TrackedDevice tracker;
