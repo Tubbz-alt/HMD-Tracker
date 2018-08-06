@@ -23,5 +23,5 @@ add_executable(HMDTracker
   Broadcaster.hpp
 )
 
-target_link_libraries(HMDTracker "${LIBZMQ_LIBRARY_DIR}/libzmq.lib")
+target_link_libraries(HMDTracker "${LIBZMQ_LIBRARY_DIR}/libzmq-v141-mt-4_2_5.lib")
 target_link_libraries(HMDTracker "${OPENVR_LIBRARY_DIR}/openvr_api.lib")
