@@ -4,17 +4,19 @@
 #include "MessageStructs.hpp"
 #include "zmq.hpp"
 
+#include <csignal>
+
 class Broadcaster {
 
 	public:
 		Broadcaster();
 		void setHostAddress(std::string const& hostAddress);
 		void publish(Message const& msg);
-
-    private:
-		zmq::context_t m_context;
-		zmq::socket_t m_socket;
-		size_t m_messageLength;
+		
+        static void signalHandler(int signal);
+		static zmq::context_t context;
+		static zmq::socket_t socket;
+		static size_t messageLength;
 };
 
 #endif // MESSAGE_SENDER_HPP
