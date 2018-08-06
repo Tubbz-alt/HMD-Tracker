@@ -10,7 +10,6 @@ Broadcaster::Broadcaster() {
 	Broadcaster::socket.setsockopt(ZMQ_CONFLATE, &conflateMessages, sizeof(conflateMessages));
 	
 	std::signal(SIGINT, Broadcaster::signalHandler);
-	std::signal(SIGKILL, Broadcaster::signalHandler);
 }
 
 void Broadcaster::setHostAddress(std::string const& hostAddress) {
