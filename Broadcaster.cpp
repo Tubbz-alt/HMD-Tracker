@@ -4,11 +4,7 @@ zmq::context_t Broadcaster::context(1);
 zmq::socket_t Broadcaster::socket(Broadcaster::context, ZMQ_PUB);
 size_t Broadcaster::messageLength(sizeof(Message));
 
-Broadcaster::Broadcaster() {
-	// set maximum number of outstanding messages in the queue
-	int conflateMessages(1); 
-	Broadcaster::socket.setsockopt(ZMQ_CONFLATE, &conflateMessages, sizeof(conflateMessages));
-	
+Broadcaster::Broadcaster() {	
 	std::signal(SIGINT, Broadcaster::signalHandler);
 }
 
